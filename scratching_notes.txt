@@ -1,0 +1,8 @@
+Todo:
+Make explanations for:
+    What an API is
+    How APIs work
+    Flask stuff
+        flask_restful
+        Resource
+        Api
