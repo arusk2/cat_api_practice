@@ -1,13 +1,21 @@
 class Calculator:
-    def __init__(self):
-        pass
     def add(self, first, second):
-        return first + second;
+        return first + second
+
     def subtract(self, first, second):
-        pass
+        return first - second
+
     def multiply(self, first, second):
-        pass
+        return first * second
+
     def divide(self, first, second):
-        pass
+        if second == 0:
+            raise Exception("Second value can't be 0.")
+        else:
+            return first / second
+
     def mod(self, first, second):
-        pass
+        if second == 0:
+            raise Exception("Second value can't be 0.")
+        else:
+            return first % second
