@@ -6,3 +6,5 @@ Make explanations for:
         flask_restful
         Resource
         Api
+
+API tutorial: https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example
