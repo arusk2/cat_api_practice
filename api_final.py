@@ -18,7 +18,6 @@ class CalculatorAdd(Resource):
     def get(self, first, second):
         calc = Calculator.Calculator()
         result = calc.add(first, second)
-        print(result)
         return result, 200 #200 is the OK code
 
 class CalculatorSubtract(Resource):
