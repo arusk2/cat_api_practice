@@ -6,8 +6,10 @@ Make explanations for:
         flask_restful
         Resource
         Api
+Add connection & functionality for MongoDB example Database of ...sentences or something idk.
 
 API tutorial: https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example
+
 change data to CSV and comment to include where a db could be plugged in.
 Adding the actual db could be the next step!
 This would be better to teach folks any ways.

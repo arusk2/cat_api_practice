@@ -30,9 +30,7 @@ class CalculatorSubtract(Resource):
         calc = Calculator.Calculator()
         return calc.subtract(first, second), 200
 
-class Todo(Resource):
 
-class TodoList(Resource):
 
 
 # adding resource name and the path to find the resource
