@@ -6,10 +6,11 @@ Make explanations for:
         flask_restful
         Resource
         Api
-Add connection & functionality for MongoDB example Database of ...sentences or something idk.
 
-API tutorial: https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example
+Using Mongo DB & using mongoengine to handle connects.
 
-change data to CSV and comment to include where a db could be plugged in.
-Adding the actual db could be the next step!
-This would be better to teach folks any ways.
+code Todo:
+    Add Crud Methods for Cat
+    Figure out how to skeletonize the code (take out what's generic, leave in what's specific)
+
+    I worry about this being too mongo-db specific so I want to see if I can generalize somehow.
