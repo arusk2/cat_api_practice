@@ -47,7 +47,9 @@ USER = 'cat-db-user'
 PASS = '###########'  # This is bad practice don't do this in prod
 DB = 'cat-test'
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
-# Now lets define a function to connect us to this database. This allows for database to be passed in a string arg.
+
+# Now lets define a function to connect us to this database. This allows for database to be passed in as a string arg.
+# If we are pulling from multiple databases,
 def db_connect(database):
     db_uri = MONGO_URI
     db = connect(database, host=db_uri)
@@ -57,7 +59,9 @@ def db_connect(database):
 format: db = db_connect(DB)
         db.close()
 
-defining page:
+# Notes for Self
+# defining page, Which is where we store items. All items with this class, Cat, 
+# will save on the same page in Mongo DB, "Cat":
 class Cat(Document):
     name = StringField(max_length=100, required=True)
     age = IntField()
@@ -68,6 +72,17 @@ Adding new items: var = PageName(field1='', field2='', fieldx='')
 where PageName is the defined page as given. (in our cast, its Cat.) and each value in args matches type.
 then: var.save()
 """
+
+"""
+We want to be able to do CRUD operations to the database. (Create, Read, Update, Delete). These are done with
+our REST API. why?
+We don't want to transfer the entire contents of the database to our code to add an entry, or to read entries.
+That's hugely wasteful. Instead, we want to only data that the database (for updating) or the user (for reading) needs.
+This is our "State" (the S in Rest). As the client, we are using only a "REpresentation" of the changes in the "State" and only
+"Transferring" that to the server.. (RE S T... see?)
+"""
+
+
 
 
 # adding resource name and the path to find the resource
