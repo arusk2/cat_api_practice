@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api, reqparse
-from mongoengine import connect
+from mongoengine import connect, Document, StringField, IntField
 import Calculator
 
 app = Flask(__name__)
@@ -44,7 +44,7 @@ give us a schema, much like a class instance. This will help us!
 First we must establish some globals we'll be using.
 """
 USER = 'cat-db-user'
-PASS = '###########'  # This is bad practice don't do this in prod
+PASS = '###############'  # This is bad practice don't do this in prod
 DB = 'cat-test'
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
 
@@ -80,8 +80,37 @@ We don't want to transfer the entire contents of the database to our code to add
 That's hugely wasteful. Instead, we want to only data that the database (for updating) or the user (for reading) needs.
 This is our "State" (the S in Rest). As the client, we are using only a "REpresentation" of the changes in the "State" and only
 "Transferring" that to the server.. (RE S T... see?)
+
+In order to add data in a flexible but consistent form, we will make a class that inherets Document from Mongoengine. 
+Using this will also make sure all data is saved to the Cat page on the MongoDB server, so that this API only interfaces 
+with that page. If we had other resources, we could also connect those with separate classes.
 """
 
+class Cat(Document):
+    name = StringField(max_length=100, required=True)
+    age = IntField()
+    major = StringField(max_length=100)
+
+
+class AddCat(Resource):
+    def post(self):
+        # Parse the body of the request. Request should include Name, age and major
+        req = request.get_json()
+        name = req['name']
+        age = req['age']
+        major = req['major']
+
+        # Using Mongo Engine, we can create a Cat object. This can then be saved to the active DB
+        # we will connect to the DB with each API RIGHT NOW only as a security measure.
+        # This could be improved, especially if we have high traffic on the site.
+        db = db_connect(DB)  # DB is our global variable for the specific page name.
+        new_cat = Cat(name=name, age=age, major=major)
+        ret = new_cat.save()
+        db.close()
+
+        # Here we would decide what to return. Since this is a toy case, we will always return 200.
+        # Improvements: If auth fails, we return some other HTML code? what about if the record exists already?
+        return 200
 
 
 
@@ -89,6 +118,7 @@ This is our "State" (the S in Rest). As the client, we are using only a "REprese
 api.add_resource(HelloWorld, '/')
 api.add_resource(CalculatorAdd, '/add', methods=['POST'])
 api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
+api.add_resource(AddCat, '/newcat', methods=['POST'])
 
 if __name__ == '__main__':
     app.run()
