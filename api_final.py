@@ -44,7 +44,7 @@ give us a schema, much like a class instance. This will help us!
 First we must establish some globals we'll be using.
 """
 USER = 'cat-db-user'
-PASS = '###############'  # This is bad practice don't do this in prod
+PASS = ''  # This is bad practice don't do this in prod
 DB = 'cat-test'
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
 
@@ -105,7 +105,7 @@ class AddCat(Resource):
         # This could be improved, especially if we have high traffic on the site.
         db = db_connect(DB)  # DB is our global variable for the specific page name.
         new_cat = Cat(name=name, age=age, major=major)
-        ret = new_cat.save()
+        new_cat.save()
         db.close()
 
         # Here we would decide what to return. Since this is a toy case, we will always return 200.
