@@ -1,3 +1,4 @@
+import mongoengine
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api, reqparse
 from mongoengine import connect, Document, StringField, IntField
@@ -125,9 +126,9 @@ class FindCatByNick(Resource):
         try:
             ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to conver to JSON
             ret = ret.to_json()
-        except Cat.objects.DoesNotExist:
+        except mongoengine.DoesNotExist:
             ret = None
-        except Cat.objects.MultipleObjectsReturned:
+        except mongoengine.MultipleObjectsReturned:
             ret = Cat.objects(name=find)[0]  # return the first instance of the cat
             ret = ret.to_json()
         db.close()
@@ -148,7 +149,7 @@ class ModifyCat(Resource):
         db = dbConnect(DB)
         try:
             update = Cat.objects.get(name=find)
-        except Cat.objects.MultipleobjectsReturned:
+        except mongoengine.MultipleobjectsReturned:
             update = Cat.objects(name=find)[0]
         finally:
             Cat.objects(id=update.id).update(name=new_name, age=new_age, major=new_major)
@@ -157,8 +158,31 @@ class ModifyCat(Resource):
 
 
 # Delete Cat
+# returns 200 if cat entry was deleted, returns 400 if cat does not exist
+# How can we improve this? what can we use that's more specific than a name?
 class DeleteCat(Resource):
-    pass
+    def post(self):
+        req = request.get_json()
+        find = req['name']
+        db = dbConnect(DB)
+        to_delete = None
+        try:
+            to_delete = Cat.objects.get(name=find)
+        except mongoengine.DoesNotExist:
+            to_delete = None
+        except mongoengine.MultipleObjectsReturned:
+            to_delete = Cat.objects(name=find)[0]  # delete the first instance of the cat
+        finally:
+            if to_delete is not None:
+                Cat.objects(id=to_delete.id).delete()  # deleting by unique ID just in case dup names exist
+                ret_msg = {"Body": "Object Deleted"}
+                ret_stat = 200
+            else:
+                ret_msg = {"Body": f"{find} not in table"}
+                ret_stat = 400  # send a bad request error.
+        db.close()
+        return ret_msg, ret_stat
+
 
 # adding resource name and the path to find the resource
 api.add_resource(HelloWorld, '/')
@@ -167,6 +191,7 @@ api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
 api.add_resource(AddCat, '/newcat', methods=['POST'])
 api.add_resource(FindCatByNick, '/findcat', methods=['POST'])
 api.add_resource(ModifyCat, '/modifycat', methods=['POST'])
+api.add_resource(DeleteCat, '/deletecat', methods=['POST'])
 
 if __name__ == '__main__':
     app.run()
