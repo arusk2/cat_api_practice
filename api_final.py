@@ -46,11 +46,12 @@ First we must establish some globals we'll be using.
 USER = 'cat-db-user'
 PASS = ''  # This is bad practice don't do this in prod
 DB = 'cat-test'
+# URI Provided by Mongo DB
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
 
 # Now lets define a function to connect us to this database. This allows for database to be passed in as a string arg.
 # If we are pulling from multiple databases,
-def db_connect(database):
+def dbConnect(database):
     db_uri = MONGO_URI
     db = connect(database, host=db_uri)
     return db
@@ -92,6 +93,7 @@ class Cat(Document):
     major = StringField(max_length=100)
 
 
+# Create
 class AddCat(Resource):
     def post(self):
         # Parse the body of the request. Request should include Name, age and major
@@ -103,7 +105,7 @@ class AddCat(Resource):
         # Using Mongo Engine, we can create a Cat object. This can then be saved to the active DB
         # we will connect to the DB with each API RIGHT NOW only as a security measure.
         # This could be improved, especially if we have high traffic on the site.
-        db = db_connect(DB)  # DB is our global variable for the specific page name.
+        db = dbConnect(DB)  # DB is our global variable for the specific page name.
         new_cat = Cat(name=name, age=age, major=major)
         new_cat.save()
         db.close()
@@ -113,12 +115,58 @@ class AddCat(Resource):
         return 200
 
 
+# Read
+class FindCatByNick(Resource):
+    def post(self):
+        req = request.get_json()
+        find = req['name']
+
+        db = dbConnect(DB)
+        try:
+            ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to conver to JSON
+            ret = ret.to_json()
+        except Cat.objects.DoesNotExist:
+            ret = None
+        except Cat.objects.MultipleObjectsReturned:
+            ret = Cat.objects(name=find)[0]  # return the first instance of the cat
+            ret = ret.to_json()
+        db.close()
+        return ret, 200
+
+
+# Update -- We are assuming client has full view of a resource and will pass in all available fields.
+# I'd implement this client side by first calling find to retrieve data and then modifying that, and sending the
+# whole record back.
+# ModifyCat then can make the assumption that the record always exists (or FindCatByNick would have failed)
+class ModifyCat(Resource):
+    def post(self):
+        req = request.get_json()
+        find = req['name']
+        new_name = req['newName']
+        new_age = req['age']
+        new_major = req['major']
+        db = dbConnect(DB)
+        try:
+            update = Cat.objects.get(name=find)
+        except Cat.objects.MultipleobjectsReturned:
+            update = Cat.objects(name=find)[0]
+        finally:
+            Cat.objects(id=update.id).update(name=new_name, age=new_age, major=new_major)
+        db.close()
+        return 200
+
+
+# Delete Cat
+class DeleteCat(Resource):
+    pass
 
 # adding resource name and the path to find the resource
 api.add_resource(HelloWorld, '/')
 api.add_resource(CalculatorAdd, '/add', methods=['POST'])
 api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
 api.add_resource(AddCat, '/newcat', methods=['POST'])
+api.add_resource(FindCatByNick, '/findcat', methods=['POST'])
+api.add_resource(ModifyCat, '/modifycat', methods=['POST'])
 
 if __name__ == '__main__':
     app.run()
