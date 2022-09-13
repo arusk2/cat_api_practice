@@ -12,13 +12,11 @@ In this step, we'll initialize our virtual environment and install required pack
 I chose to use an IDE for this because setting up and activating the virtual environment is done automatically. 
 This can ensure that our packages are localized and we won't run into any dependency issues.
 ### Initializing Virtual Environment
-This can be done one of two ways: 
-1) Manually using `virtualenv` (or `conda`)
-2) Automatically when creating a project
+This can be done one of two ways: 1) Manually using `virtualenv` (or `conda`) or, 2) Automatically when creating a project
 in your favorite IDE.
 
 For manual set up, please refer to: https://towardsdatascience.com/virtual-environments-104c62d48c54.
-This is not only a great resource for getting started with virtual environments but also why we use them. 
+This article gets into both the "how to use" and the "why we use" virtual environments with Python.
 If you run into a paywall, please visit https://12ft.io/ to remove it.
 
 As for the automatic setup, this will vary slightly depending on IDE used: 
@@ -26,3 +24,20 @@ As for the automatic setup, this will vary slightly depending on IDE used:
 - Usually in this screen or the next, when you select your language, 
 you will be given an option to create a virtual environment
   - For PyCharm, it is directly under Location choice.
+
+Now that we have our virtual environment created, our IDE has automatically activated it. You can double check this by
+opening a terminal in your IDE and verify that you have something like:
+```(your environment name) shell_name_here $ ```. This will vary slightly based on terminal language but the important 
+thing to see if the name of your virtual environment in parentheses before everything. This shows that its been activated.
+
+Now, we will be using `pip` to install our dependencies. It's the default package manager for Python.
+You can install dependencies using:
+
+```pip install requirements.txt```
+
+I have included in our repo a list of dependencies needed for the project, this will install all of them automatically 
+to your virtual environment. Because this is a fresh environment we _shouldn't_ run into any issues.
+
+## Step 2: Cloning the repo
+To clone the repo we'll be using, go ahead and use:
+```git clone ```
