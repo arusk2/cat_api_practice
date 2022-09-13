@@ -60,12 +60,6 @@ DB = 'cat-test'
 # URI Provided by Mongo DB
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
 
-# Now lets define a function to connect us to this database. This allows for database to be passed in as a string arg.
-# If we are pulling from multiple databases,
-def dbConnect(database):
-    db_uri = MONGO_URI
-    db = connect(database, host=db_uri)
-    return db
 
 """
 format: db = db_connect(DB)
@@ -113,10 +107,11 @@ class AddCat(Resource):
         age = req['age']
         major = req['major']
 
-        # Using Mongo Engine, we can create a Cat object. This can then be saved to the active DB
-        # we will connect to the DB with each API RIGHT NOW only as a security measure.
-        # This could be improved, especially if we have high traffic on the site.
-        db = dbConnect(DB)  # DB is our global variable for the specific page name.
+        # Using Mongo Engine, we can create a Cat object. This can then be saved to the active database
+        # DB is our global variable for the specific page name. This technically returns a database object,
+        # but it isn't used specifically, so we won't save it. Once the connection is established, we can create the
+        # Cat Object and the Cat.save() function saves the new object to the database we connected to with DB
+        connect(alias=DB, host=MONGO_URI)
         new_cat = Cat(name=name, age=age, major=major)
         new_cat.save()
         disconnect(alias=DB)
@@ -132,7 +127,7 @@ class FindCatByNick(Resource):
         req = request.get_json()
         find = req['name']
 
-        db = dbConnect(DB)
+        connect(alias=DB, host=MONGO_URI)
         try:
             ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to conver to JSON
             ret = ret.to_json()
@@ -141,7 +136,7 @@ class FindCatByNick(Resource):
         except mongoengine.MultipleObjectsReturned:
             ret = Cat.objects(name=find)[0]  # return the first instance of the cat
             ret = ret.to_json()
-        db.close()
+        disconnect(alias=DB)
         return ret, 200
 
 
@@ -156,14 +151,14 @@ class ModifyCat(Resource):
         new_name = req['newName']
         new_age = req['age']
         new_major = req['major']
-        db = dbConnect(DB)
+        connect(alias=DB, host=MONGO_URI)
         try:
             update = Cat.objects.get(name=find)
         except mongoengine.MultipleobjectsReturned:
             update = Cat.objects(name=find)[0]
         finally:
             Cat.objects(id=update.id).update(name=new_name, age=new_age, major=new_major)
-        db.close()
+        disconnect(alias=DB)
         return 200
 
 
@@ -174,7 +169,7 @@ class DeleteCat(Resource):
     def post(self):
         req = request.get_json()
         find = req['name']
-        db = dbConnect(DB)
+        connect(alias=DB, host=MONGO_URI)
         to_delete = None
         try:
             to_delete = Cat.objects.get(name=find)
@@ -190,7 +185,7 @@ class DeleteCat(Resource):
             else:
                 ret_msg = {"Body": f"{find} not in table"}
                 ret_stat = 400  # send a bad request error.
-        db.close()
+        disconnect(alias=DB)
         return ret_msg, ret_stat
 
 
