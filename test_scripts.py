@@ -1,5 +1,5 @@
 """
-This Final contains scripts used both for testing and illustrating how we can use API calls.
+This file contains scripts used both for testing and illustrating how we can use API calls.
 We can pretend this file is a front end of a site, it makes async calls to our api, and when
 the api calls return with data, we then put that in our website
 Except here, we will be printing all of this to a console.

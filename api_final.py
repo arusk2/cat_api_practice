@@ -1,7 +1,8 @@
 import mongoengine
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api, reqparse
+from flask import Flask, request
+from flask_restful import Resource, Api
 from mongoengine import connect, Document, StringField, IntField
+from mongoengine.connection import disconnect
 import Calculator
 
 app = Flask(__name__)
@@ -35,6 +36,15 @@ class CalculatorSubtract(Resource):
         calc = Calculator.Calculator()
         return calc.subtract(first, second), 200
 
+# adding resource name and the path to find the resource. This gives the API a function to call when a request
+# is received with the path AND HTTP method (GET, POST, etc)
+# This is why above we have the CalculatorMethod as a class but the actual functionality under method with the generic
+# name "post", because we are saying "use the post method in the calculator class when we receive a post request to this
+# specific path"
+api.add_resource(HelloWorld, '/')
+api.add_resource(CalculatorAdd, '/add', methods=['POST'])
+api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
+
 """
 When working with Databases, we have several common operations: Create, Read, Update, Delete (Or CRUD)
 A RESTful API is a great way to implement these. We're using a MongoDB as our database option, 
@@ -45,7 +55,7 @@ give us a schema, much like a class instance. This will help us!
 First we must establish some globals we'll be using.
 """
 USER = 'cat-db-user'
-PASS = ''  # This is bad practice don't do this in prod
+PASS = ''  # This is bad practice don't do this in prod. This should be somewhere secret not saved to the repo
 DB = 'cat-test'
 # URI Provided by Mongo DB
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
@@ -109,7 +119,7 @@ class AddCat(Resource):
         db = dbConnect(DB)  # DB is our global variable for the specific page name.
         new_cat = Cat(name=name, age=age, major=major)
         new_cat.save()
-        db.close()
+        disconnect(alias=DB)
 
         # Here we would decide what to return. Since this is a toy case, we will always return 200.
         # Improvements: If auth fails, we return some other HTML code? what about if the record exists already?
@@ -184,10 +194,7 @@ class DeleteCat(Resource):
         return ret_msg, ret_stat
 
 
-# adding resource name and the path to find the resource
-api.add_resource(HelloWorld, '/')
-api.add_resource(CalculatorAdd, '/add', methods=['POST'])
-api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
+
 api.add_resource(AddCat, '/newcat', methods=['POST'])
 api.add_resource(FindCatByNick, '/findcat', methods=['POST'])
 api.add_resource(ModifyCat, '/modifycat', methods=['POST'])
