@@ -1,7 +1,8 @@
 import mongoengine
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api, reqparse
+from flask import Flask, request
+from flask_restful import Resource, Api
 from mongoengine import connect, Document, StringField, IntField
+from mongoengine.connection import disconnect
 import Calculator
 
 app = Flask(__name__)
@@ -35,6 +36,15 @@ class CalculatorSubtract(Resource):
         calc = Calculator.Calculator()
         return calc.subtract(first, second), 200
 
+# adding resource name and the path to find the resource. This gives the API a function to call when a request
+# is received with the path AND HTTP method (GET, POST, etc)
+# This is why above we have the CalculatorMethod as a class but the actual functionality under method with the generic
+# name "post", because we are saying "use the post method in the calculator class when we receive a post request to this
+# specific path"
+api.add_resource(HelloWorld, '/')
+api.add_resource(CalculatorAdd, '/add', methods=['POST'])
+api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
+
 """
 When working with Databases, we have several common operations: Create, Read, Update, Delete (Or CRUD)
 A RESTful API is a great way to implement these. We're using a MongoDB as our database option, 
@@ -45,17 +55,11 @@ give us a schema, much like a class instance. This will help us!
 First we must establish some globals we'll be using.
 """
 USER = 'cat-db-user'
-PASS = ''  # This is bad practice don't do this in prod
+PASS = ''  # This is bad practice don't do this in prod. This should be somewhere secret not saved to the repo
 DB = 'cat-test'
 # URI Provided by Mongo DB
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
 
-# Now lets define a function to connect us to this database. This allows for database to be passed in as a string arg.
-# If we are pulling from multiple databases,
-def dbConnect(database):
-    db_uri = MONGO_URI
-    db = connect(database, host=db_uri)
-    return db
 
 """
 format: db = db_connect(DB)
@@ -103,13 +107,14 @@ class AddCat(Resource):
         age = req['age']
         major = req['major']
 
-        # Using Mongo Engine, we can create a Cat object. This can then be saved to the active DB
-        # we will connect to the DB with each API RIGHT NOW only as a security measure.
-        # This could be improved, especially if we have high traffic on the site.
-        db = dbConnect(DB)  # DB is our global variable for the specific page name.
+        # Using Mongo Engine, we can create a Cat object. This can then be saved to the active database
+        # DB is our global variable for the specific page name. This technically returns a database object,
+        # but it isn't used specifically, so we won't save it. Once the connection is established, we can create the
+        # Cat Object and the Cat.save() function saves the new object to the database we connected to with DB
+        connect(alias=DB, host=MONGO_URI)
         new_cat = Cat(name=name, age=age, major=major)
         new_cat.save()
-        db.close()
+        disconnect(alias=DB)
 
         # Here we would decide what to return. Since this is a toy case, we will always return 200.
         # Improvements: If auth fails, we return some other HTML code? what about if the record exists already?
@@ -122,7 +127,7 @@ class FindCatByNick(Resource):
         req = request.get_json()
         find = req['name']
 
-        db = dbConnect(DB)
+        connect(alias=DB, host=MONGO_URI)
         try:
             ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to conver to JSON
             ret = ret.to_json()
@@ -131,7 +136,7 @@ class FindCatByNick(Resource):
         except mongoengine.MultipleObjectsReturned:
             ret = Cat.objects(name=find)[0]  # return the first instance of the cat
             ret = ret.to_json()
-        db.close()
+        disconnect(alias=DB)
         return ret, 200
 
 
@@ -146,14 +151,14 @@ class ModifyCat(Resource):
         new_name = req['newName']
         new_age = req['age']
         new_major = req['major']
-        db = dbConnect(DB)
+        connect(alias=DB, host=MONGO_URI)
         try:
             update = Cat.objects.get(name=find)
         except mongoengine.MultipleobjectsReturned:
             update = Cat.objects(name=find)[0]
         finally:
             Cat.objects(id=update.id).update(name=new_name, age=new_age, major=new_major)
-        db.close()
+        disconnect(alias=DB)
         return 200
 
 
@@ -164,7 +169,7 @@ class DeleteCat(Resource):
     def post(self):
         req = request.get_json()
         find = req['name']
-        db = dbConnect(DB)
+        connect(alias=DB, host=MONGO_URI)
         to_delete = None
         try:
             to_delete = Cat.objects.get(name=find)
@@ -180,14 +185,11 @@ class DeleteCat(Resource):
             else:
                 ret_msg = {"Body": f"{find} not in table"}
                 ret_stat = 400  # send a bad request error.
-        db.close()
+        disconnect(alias=DB)
         return ret_msg, ret_stat
 
 
-# adding resource name and the path to find the resource
-api.add_resource(HelloWorld, '/')
-api.add_resource(CalculatorAdd, '/add', methods=['POST'])
-api.add_resource(CalculatorSubtract, '/subtract', methods=['POST'])
+
 api.add_resource(AddCat, '/newcat', methods=['POST'])
 api.add_resource(FindCatByNick, '/findcat', methods=['POST'])
 api.add_resource(ModifyCat, '/modifycat', methods=['POST'])
