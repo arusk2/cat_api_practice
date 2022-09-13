@@ -84,10 +84,10 @@ We want to be able to do CRUD operations to the database. (Create, Read, Update,
 our REST API. why?
 We don't want to transfer the entire contents of the database to our code to add an entry, or to read entries.
 That's hugely wasteful. Instead, we want to only data that the database (for updating) or the user (for reading) needs.
-This is our "State" (the S in Rest). As the client, we are using only a "REpresentation" of the changes in the "State" and only
+This is our "State" (the S in Rest). As the client, we are using only a "Representation" of the changes in the "State" and only
 "Transferring" that to the server.. (RE S T... see?)
 
-In order to add data in a flexible but consistent form, we will make a class that inherets Document from Mongoengine. 
+In order to add data in a flexible but consistent form, we will make a class that inherits Document from Mongoengine. 
 Using this will also make sure all data is saved to the Cat page on the MongoDB server, so that this API only interfaces 
 with that page. If we had other resources, we could also connect those with separate classes.
 """
@@ -129,7 +129,7 @@ class FindCatByNick(Resource):
 
         connect(alias=DB, host=MONGO_URI)
         try:
-            ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to conver to JSON
+            ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to convert to JSON
             ret = ret.to_json()
         except mongoengine.DoesNotExist:
             ret = None
