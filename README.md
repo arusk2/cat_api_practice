@@ -9,6 +9,8 @@ I recommend this only because it is one less thing to worry about.
 
 ## Step 1: Setting up Environment
 In this step, we'll initialize our virtual environment and install required packages.
+I chose to use an IDE for this because setting up and activating the virtual environment is done automatically. 
+This can ensure that our packages are localized and we won't run into any dependency issues.
 ### Initializing Virtual Environment
 This can be done one of two ways: 
 1) Manually using `virtualenv` (or `conda`)
@@ -16,9 +18,10 @@ This can be done one of two ways:
 in your favorite IDE.
 
 For manual set up, please refer to: https://towardsdatascience.com/virtual-environments-104c62d48c54.
-This is not only a great resource for getting started with virtual environments but also why we use them.
+This is not only a great resource for getting started with virtual environments but also why we use them. 
+If you run into a paywall, please visit https://12ft.io/ to remove it.
 
-As for the automatic setup, this will very slightly, depending on IDE used: 
+As for the automatic setup, this will vary slightly depending on IDE used: 
 - In your IDE, select "New Project" or "New Folder" or similar wording
 - Usually in this screen or the next, when you select your language, 
 you will be given an option to create a virtual environment
