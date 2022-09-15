@@ -138,3 +138,22 @@ class CalculatorSubtract(Resource):
             # Improvements: If auth fails, should we return some other HTML code?
             # What about if the record exists already or the user doesn't use the correct fields?
             return 200
+
+
+# Read
+class FindCatByNick(Resource):
+    def post(self):
+        req = request.get_json()
+        find = req['name']
+
+        connect(alias=DB, host=MONGO_URI)
+        try:
+            ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to convert to JSON
+            ret = ret.to_json()
+        except mongoengine.DoesNotExist:
+            ret = None
+        except mongoengine.MultipleObjectsReturned:
+            ret = Cat.objects(name=find)[0]  # return the first instance of the cat
+            ret = ret.to_json()
+        disconnect(alias=DB)
+        return ret, 200
