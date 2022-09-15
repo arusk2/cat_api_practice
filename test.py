@@ -17,7 +17,7 @@ def check_server() -> bool:
     get = requests.get(URL)
     if get.status_code != 200:
         print("Server is not running. To run, use command:")
-        print("flask --app api.py --debug run")
+        print("python flask_start.py")
         return False
     return True
 
@@ -45,11 +45,66 @@ def test_calculator():
                 else:
                     print(f"API Error, Status Code: {resp.status_code}")
         print("Exiting testing.")
+        return
 
 
 def test_database():
-    print("Testing db will imp later")
+    if check_server() is True:
+        usr_input = ''
+        print("Uses:")
+        print("\t 'newcat <CatNick> <age> <major>' to test the DB API and add a new cat to DB (keep major one word or abbreviation, no spaces)")
+        print("\t 'findcat <CatNick>' to test the DB API find call and retrieve information about a Cat")
+        print("\t 'modifycat <CatNick> <UpdatedNick> <UpdatedAge> <UpdatedMajor>' to test DB API's Update functionality and update the DB record")
+        print("\t 'deletecat <CatNick>' to test DB API's Delete function and remove a cat from the DB")
+        print("\t 'exit' to exit")
+        
+        while usr_input != 'exit':
+            usr_input = input()
+            inp = usr_input.split(' ')
+            if inp[0] == 'newcat':
+                test_addcat(inp[0], inp[1], inp[2], inp[3])  # path, name, age, major (all w/ no spaces)
+            elif inp[0] == 'findcat': 
+                test_findcat(inp[0], inp[1])  # only need path and name to test find    
+            elif inp[0] == 'modifycat':
+                test_updatecat(inp[0], inp[1], inp[2], inp[3], inp[4]) 
+            elif inp[0] == 'deletecat':
+                test_deletecat(inp[0], inp[1])
+            else:
+                if not 'exit':
+                    print("Make sure your input doesn't have typos")
+        print("Exiting testing.")
+        return
 
+def test_addcat(path, name, age, major):
+    url = URL + path
+    req_body = {'name': name,
+                'age': int(age),
+                'major': major}  #we got the age from a string so we convert to int
+    resp = requests.post(url, json=req_body)
+    if resp.status_code == 200:
+        print(f"New record created: \n\tNick: \t{name}\n\tAge: \t{age}\n\tMajor: \t{major}")
+    else:
+        print("An error occurred. Try Again.")
+    return
+
+def test_findcat(path, name):
+    url = URL + path
+    req_body = {'name': name}
+    resp = requests.post(url, json=req_body)
+    if resp.status_code == 200:
+        resp = resp.json()  # get a string of the json representation of data
+        resp = json.loads(resp)  # convert the JSON representation to a python dictionary for easy indexing
+        print(f"Record Found: \n\tID:\t{resp['_id']['$oid']} \n\tNick: \t{resp['name']}\n\tAge: \t{resp['age']}\n\tMajor: \t{resp['major']}")
+    else:
+        print("An error occurred. Try Again.")
+    return
+
+
+def test_updatecat(path, find_name, new_name, new_age, new_major):
+    pass
+
+def test_deletecat(path, find_name):
+    pass
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

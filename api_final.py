@@ -66,7 +66,7 @@ our API, we'll be using mongoengine to help give us a schema, much like a class 
 First we must establish some globals we'll be using.
 """
 USER = 'cat-db-user'
-PASS = ''  # This is bad practice don't do this in prod. This should be somewhere secret not saved to the repo
+PASS = 'PleaseDontHackMe'  # This is bad practice don't do this in prod. This should be somewhere secret not saved to the repo
 DB = 'cat-test'
 # URI Provided by Mongo DB
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
@@ -121,8 +121,8 @@ class AddCat(Resource):
         major = req['major']
 
         # Third, we must connect to our resource, the DB. We're utilizing globals established above for convenience.
-        connect(alias=DB, host=MONGO_URI)
-        # Foruth, using Mongo Engine, we can create a Cat object. This can then be saved to the active database
+        connect(DB, host=MONGO_URI)
+        # Fourth, using Mongo Engine, we can create a Cat object. This can then be saved to the active database
         # DB is our global variable for the specific page name. This technically returns a database object,
         # but it isn't used specifically, so we won't save it. Once the connection is established, we can create the
         # Cat Object and the Cat.save() function saves the new object to the database we connected to with DB
@@ -133,7 +133,8 @@ class AddCat(Resource):
 
         # Here we would decide what to return. Since this is a toy case, we will always return 200. We don't want
         # to return any data from the database.
-        # Improvements: If auth fails, should we return some other HTML code?
+        # Improvements: If auth fails, should we return some other HTML code? Remember, we are using the API for MongoDB
+        # too and our calls with it might fail!
         # What about if the record exists already or the user doesn't use the correct fields?
         return 200
 
@@ -144,7 +145,7 @@ class FindCatByNick(Resource):
         req = request.get_json()
         find = req['name']
 
-        connect(alias=DB, host=MONGO_URI)
+        connect(DB, host=MONGO_URI)
         try:
             ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to convert to JSON
             ret = ret.to_json()
@@ -168,7 +169,7 @@ class ModifyCat(Resource):
         new_name = req['newName']
         new_age = req['age']
         new_major = req['major']
-        connect(alias=DB, host=MONGO_URI)
+        connect(DB, host=MONGO_URI)
         try:
             update = Cat.objects.get(name=find)
         except mongoengine.MultipleobjectsReturned:
@@ -186,7 +187,7 @@ class DeleteCat(Resource):
     def post(self):
         req = request.get_json()
         find = req['name']
-        connect(alias=DB, host=MONGO_URI)
+        connect(DB, host=MONGO_URI)
         to_delete = None
         try:
             to_delete = Cat.objects.get(name=find)
