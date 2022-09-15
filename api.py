@@ -48,3 +48,13 @@ class CalculatorSubtract(Resource):
 
         # Fifth return result to client and return an HTTP status code.
         return result, 200
+
+    # Now that we have intended functionality in our API, we need to add that functionality as
+    # a resource to flask's API class that we created above. This includes the Class name and the path
+    # to find the resource and the methods by which we want the class to be accessed. When a request is received to
+    # the path, with the type GET, the API will look to the HelloWorld class to see if it has a GET method implemented
+    # This is why above we have the CalculatorMethod as a class but the actual functionality of the class
+    # under method with the generic name "post", because we are saying
+    # "use the post method in the calculator class when we receive a post request to this specific path"
+    api.add_resource(HelloWorld, '/', methods=['GET'])
+    # Following this model, lets add our two calculator paths with the path being '/add' and '/subtract'
