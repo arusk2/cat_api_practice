@@ -34,13 +34,16 @@ def test_calculator():
             if inp[0] == 'add' or inp[0] == 'subtract':
                 url = URL + inp[0]
                 resp = requests.post(url, json={'first': int(inp[1]), 'second': int(inp[2])})
-                result = resp.text.strip('\n') # resp.text is formatted as a new line-terminated string
-                result = int(result)
-                if inp[0] == 'add':
-                    sign = "+"
+                if resp.status_code == 200:
+                    result = resp.text.strip('\n')  # resp.text is formatted as a new line-terminated string
+                    result = int(result)
+                    if inp[0] == 'add':
+                        sign = "+"
+                    else:
+                        sign = "-"
+                    print(f"Status Code: {resp.status_code} \t {inp[1]} {sign} {inp[2]} = {result}")
                 else:
-                    sign = "-"
-                print(f"{inp[1]} {sign} {inp[2]} = {result}")
+                    print(f"API Error, Status Code: {resp.status_code}")
         print("Exiting testing.")
 
 
@@ -58,4 +61,4 @@ if __name__ == '__main__':
             print("Please use 'c' to test calculator API or 'd' to test Database API.")
     else:
         print("Please use 'c' to test calculator API or 'd' to test Database API.")
-        print("Format: 'python test_scripts.py <letter>'")
+        print("Format: 'python test.py <letter>'")

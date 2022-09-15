@@ -15,26 +15,38 @@ class HelloWorld(Resource):
 
 
 class CalculatorAdd(Resource):
+    # POST Methods have a body that can contain the variables needed for the function call. We can establish them in our
+    # Documentation to make sure we keep a uniform interface. For this, we MUST have 2 values, first and second
     def post(self):
+        # Parsing the Body of the POST (converting JSON to something Python read-able
         req = request.get_json()
-        # Printing our request. we can see its format is a {'first':2, 'second':2}
-        print(req)
-        first = req['first']
-        second = req['second']
+        try:
+            # Accessing the two variables we know to have. What happens if the client doesn't include this or mispells it?
+            # How can we improve the security of this?
+            first = req['first']
+            second = req['second']
+        except:
+            return None, 400 # Client bad request
 
+        # Create a calculator object. This is the API reaching out to the resource.
         calc = Calculator.Calculator()
         result = calc.add(first, second)
+        # return result to client and return a HTTP status code.
         return result, 200 #200 is the OK code
 
 
 class CalculatorSubtract(Resource):
     def post(self):
         req = request.get_json()
-        first = req['first']
-        second = req['second']
+        try:
+            first = req['first']
+            second = req['second']
+        except:
+            return None, 400  # Client bad request
 
         calc = Calculator.Calculator()
-        return calc.subtract(first, second), 200
+        result = calc.subtract(first, second)
+        return result, 200
 
 # adding resource name and the path to find the resource. This gives the API a function to call when a request
 # is received with the path AND HTTP method (GET, POST, etc)
