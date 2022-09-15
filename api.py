@@ -143,17 +143,35 @@ class AddCat(Resource):
 # Read
 class FindCatByNick(Resource):
     def post(self):
-        req = request.get_json()
-        find = req['name']
+        # First Parse the body of the request so that the JSON is read-able by python
 
-        connect(alias=DB, host=MONGO_URI)
+        # Second, grab the variables from the body of the request. This API only supports searching by Name, so the
+        # only variable should be 'name'. let's save it as a variable called 'find'
+        find = ''
+
+        # Third, connect to DB (See previous function)
+
+        # Fourth, Because we are searching a database, we need to be ready to catch exceptions. Mongoengine will throw
+        # an exception if the record we are trying to find doesn't exist in the DB. This is more about the specifics of
+        # Mongoengine, so I'm leaving this code in as "complete" just with examples.
         try:
             ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to convert to JSON
+            # we convert to json because that is the language that we are transferring data into and out of the API
             ret = ret.to_json()
         except mongoengine.DoesNotExist:
+            # There are two errors possible for Cat.objects.get(), so we need to catch and handle both.
+            # If it doesn't exist, we have nothing to return
             ret = None
         except mongoengine.MultipleObjectsReturned:
+            # The second error is if multiple are returned. This here is a trivial solution: we just return the first
+            # This could be improved or iterated upon, but for the toy example it works.
+            # For this, we aren't using get() (because get only returns one item or throws these two errors)
+            # We are filtering for the name in the database itself and just returning the first in the list. We could
+            # return a list, potentially, but the client must know this is possible, so they can handle it (this isn't
+            # implemented in our client application)
             ret = Cat.objects(name=find)[0]  # return the first instance of the cat
             ret = ret.to_json()
-        disconnect(alias=DB)
+        # Fifth, Disconnect from DB
+
+        # Improvements: should our status code be different if the DoesNotExist exception was thrown?
         return ret, 200
