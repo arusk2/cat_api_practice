@@ -49,15 +49,15 @@ class CalculatorSubtract(Resource):
         # Fifth return result to client and return an HTTP status code.
         return result, 200
 
-    # Now that we have intended functionality in our API, we need to add that functionality as
-    # a resource to flask's API class that we created above. This includes the Class name and the path
-    # to find the resource and the methods by which we want the class to be accessed. When a request is received to
-    # the path, with the type GET, the API will look to the HelloWorld class to see if it has a GET method implemented
-    # This is why above we have the CalculatorMethod as a class but the actual functionality of the class
-    # under method with the generic name "post", because we are saying
-    # "use the post method in the calculator class when we receive a post request to this specific path"
-    api.add_resource(HelloWorld, '/', methods=['GET'])
-    # Following this model, lets add our two calculator paths with the path being '/add' and '/subtract'
+# Now that we have intended functionality in our API, we need to add that functionality as
+# a resource to flask's API class that we created above. This includes the Class name and the path
+# to find the resource and the methods by which we want the class to be accessed. When a request is received to
+# the path, with the type GET, the API will look to the HelloWorld class to see if it has a GET method implemented
+# This is why above we have the CalculatorMethod as a class but the actual functionality of the class
+# under method with the generic name "post", because we are saying
+# "use the post method in the calculator class when we receive a post request to this specific path"
+api.add_resource(HelloWorld, '/', methods=['GET'])
+# Following this model, lets add our two calculator paths with the paths being '/add' and '/subtract'
 
 """
 When working with Databases, we have several common operations: Create, Read, Update, Delete (Or CRUD)
@@ -171,7 +171,99 @@ class FindCatByNick(Resource):
             # implemented in our client application)
             ret = Cat.objects(name=find)[0]  # return the first instance of the cat
             ret = ret.to_json()
+
         # Fifth, Disconnect from DB
 
         # Improvements: should our status code be different if the DoesNotExist exception was thrown?
         return ret, 200
+
+
+# Update -- We are assuming client has full view of a resource and will pass in all available fields.
+# I'd implement this client side by first calling FindCat to retrieve data and then modifying given record,
+# and sending the whole record back with the previous name as a find term (Remember our database isn't actually updated
+# until we second the record back with this modify function
+# ModifyCat then can make the assumption that the record always exists (or FindCatByNick would have failed)
+class ModifyCat(Resource):
+    def post(self):
+        # First Parse the body of the request so that the JSON is read-able by python
+
+        # Second we need to pull our variables from the request. We have 'name', 'newName', 'age' and 'major'
+        # Casing is important, and I mostly see camelCase in JSON (hence why I've structured it that way)
+        # I've named the variables here because the names are used in code below, replace the Nones
+        find = None
+        new_name = None
+        new_age = None
+        new_major = None
+        # Third, Connect to DB
+
+        # Fourth, We are searching the database for the record we want to update. Why? we want the unique ID that the
+        # DB assigns to every entry so we can be sure we're updating the right one. This is already done in the Read
+        # function (which we assume was used first to get the record) so this is an area of improvement. How would you
+        # Modify this so that we are getting the ID of the record in the request?
+        try:
+            update = Cat.objects.get(name=find)
+        except mongoengine.MultipleObjectsReturned:
+            # We can assume it exists because of the read, but there still might be multiple, so we grab the first.
+            # If we don't handle this exception it causes the API to crash
+            update = Cat.objects(name=find)[0]
+        finally:
+            # This will always happen after either the try or except block execute. We are updating the entry using the
+            # ID provided for better accuracy. We are updating all fields, even if only one is changed.
+            Cat.objects(id=update.id).update(name=new_name, age=new_age, major=new_major)
+
+        # Fifth, disconnect
+
+        # This is probably the most rudimentary function and could be improved. What are some ways we improve it?
+        return 200
+
+
+# Delete Cat
+# returns 200 if cat entry was deleted, returns 400 if cat does not exist
+# How can we improve this? what can we use that's more specific than a name?
+class DeleteCat(Resource):
+    def post(self):
+        # First Parse the body of the request so that the JSON is read-able by python
+
+        # Second, let's get the only required variable passed in by the request body, 'name'
+        find = None
+        # Third, Connect to DB
+
+        # Fourth, we are trying to get the record we want to delete. This way we can access its ID, similar to Update.
+        # then, we delete it if it exists. If it doesn't exist, we send back an error code and an error message.
+        to_delete = None
+        try:
+            to_delete = Cat.objects.get(name=find)
+        except mongoengine.DoesNotExist:
+            to_delete = None
+        except mongoengine.MultipleObjectsReturned:
+            to_delete = Cat.objects(name=find)[0]  # delete the first instance of the cat
+        finally:
+            if to_delete is not None:
+                Cat.objects(id=to_delete.id).delete()  # deleting by unique ID just in case dup names exist
+                ret_msg = {"Body": "Object Deleted"}
+                ret_stat = 200
+            else:
+                ret_msg = {"Body": f"{find} not in table"}
+                ret_stat = 400  # send a bad request error.
+        # Fifth, disconnet
+
+        # Now, we have two things to return, the message and the code. Message goes first, then code.
+        # Once we improve the update function, is there a way we can improve this functionality? It should be noted I
+        # didn't make the assumption that a read was called before the delete call, so in our documentation maybe we can
+        # establish a precedent: do update and delete call read themselves or is it on the client? how does this change
+        # how we use return codes or return messages? These idiosyncrasies are easy to plan for when we're client, API
+        # writer and resource manager, but if we're only one of those we need to iron them out.
+        return ret_msg, ret_stat
+
+
+# FINALLY we've established a BUNCH of functionality, but we need to make sure the API knows what it should call based
+# on the path of the request and type its given. We will structure this similarly to the Calculator, with the name of
+# the class first, then the path we find it at, then the methods accepted. For this, all methods are POST, and paths are:
+# Create: /newcat
+# Read: /findcat
+# Update: /modifycat
+# Delete: /deletecat
+
+# This will run our webserver until we quit with CTRL+C
+if __name__ == '__main__':
+    app.run()
