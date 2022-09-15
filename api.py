@@ -1,3 +1,5 @@
+import json
+
 import mongoengine
 from flask import Flask, request
 from flask_restful import Resource, Api
@@ -29,7 +31,7 @@ class CalculatorAdd(Resource):
         # In this case, we'll be creating an object of class Calculator. We've imported it at the top
 
         # Fourth, once we've connected to the resource, we must tell it what we want it to do
-
+        result = 0 # change this to a function call.
         # Fifth return result to client and return an HTTP status code.
         return result, 200 #200 is the OK code
 
@@ -45,7 +47,7 @@ class CalculatorSubtract(Resource):
         # In this case, we'll be creating an object of class Calculator. We've imported it at the top
 
         # Fourth, once we've connected to the resource, we must tell it what we want it to do
-
+        result = 0 # change this to a function call.
         # Fifth return result to client and return an HTTP status code.
         return result, 200
 
@@ -247,7 +249,8 @@ class DeleteCat(Resource):
             else:
                 ret_msg = {"Body": f"{find} not in table"}
                 ret_stat = 400  # send a bad request error.
-        # Fifth, disconnet
+        ret_msg = json.dumps(ret_msg)  # we need to convert this to JSON to pass through API
+        # Fifth, disconnect
 
         # Now, we have two things to return, the message and the code. Message goes first, then code.
         # Once we improve the update function, is there a way we can improve this functionality? It should be noted I

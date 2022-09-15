@@ -1,6 +1,6 @@
 import os
 
-output = os.popen('flask --app api_final --debug run')
+output = os.popen('flask --app api --debug run')
 while True:
     line = output.readline()
     if line:
