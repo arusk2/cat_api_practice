@@ -62,12 +62,10 @@ MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWri
 
 
 """
-format: db = db_connect(DB)
-        db.close()
-
-# Notes for Self
-# defining page, Which is where we store items. All items with this class, Cat, 
-# will save on the same page in Mongo DB, "Cat":
+Notes for Self
+This defines a page, Which is where we store items with mongoengine
+All items with this class, Cat,  will save on the same page in Mongo DB, "Cat"
+It must inherent the mongoengine class Document
 class Cat(Document):
     name = StringField(max_length=100, required=True)
     age = IntField()
@@ -75,7 +73,7 @@ class Cat(Document):
 
 
 Adding new items: var = PageName(field1='', field2='', fieldx='') 
-where PageName is the defined page as given. (in our cast, its Cat.) and each value in args matches type.
+where PageName is the defined page as given. (in our case, its Cat) and each value in args matches type.
 then: var.save()
 """
 
@@ -83,10 +81,10 @@ then: var.save()
 We want to be able to do CRUD operations to the database. (Create, Read, Update, Delete). These are done with
 our REST API. why?
 We don't want to transfer the entire contents of the database to our code to add an entry, or to read entries.
-That's hugely wasteful. Instead, we want to only data that the database (for updating) or the user (for reading) needs.
-This is our "State" (the S in Rest). As the client, we are using only a "Representation" of the changes in the "State" and only
-"Transferring" that to the server.. (RE S T... see?)
-
+That's hugely wasteful. Instead, we want to include only data that the database needs to use (for updating) 
+or the user (for reading) needs. This is our "State" (the S in Rest). As the client, we are using only a 
+"Representation" of the changes in the "State" and only "Transferring" that to the server.. (RE S T... see?)
+""" """
 In order to add data in a flexible but consistent form, we will make a class that inherits Document from Mongoengine. 
 Using this will also make sure all data is saved to the Cat page on the MongoDB server, so that this API only interfaces 
 with that page. If we had other resources, we could also connect those with separate classes.
@@ -117,7 +115,7 @@ class AddCat(Resource):
         disconnect(alias=DB)
 
         # Here we would decide what to return. Since this is a toy case, we will always return 200.
-        # Improvements: If auth fails, we return some other HTML code? what about if the record exists already?
+        # Improvements: If auth fails, should we return some other HTML code? what about if the record exists already?
         return 200
 
 
