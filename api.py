@@ -58,3 +58,48 @@ class CalculatorSubtract(Resource):
     # "use the post method in the calculator class when we receive a post request to this specific path"
     api.add_resource(HelloWorld, '/', methods=['GET'])
     # Following this model, lets add our two calculator paths with the path being '/add' and '/subtract'
+
+    """
+    When working with Databases, we have several common operations: Create, Read, Update, Delete (Or CRUD)
+    A RESTful API is a great way to implement these. We're using a MongoDB as our database option, 
+    which is referred to as an "object storage" database as it stores items without a preset Schema, unlike a relational 
+    database like MySQL. However, since we're working with this data programmatically and have a uniform interface with 
+    our API, we'll be using mongoengine to help give us a schema, much like a class instance. 
+    First we must establish some globals we'll be using.
+    """
+    USER = 'cat-db-user'
+    PASS = ''  # This is bad practice don't do this in prod. This should be somewhere secret not saved to the repo
+    DB = 'cat-test'
+    # URI Provided by Mongo DB
+    MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
+
+    """In order to add data in a flexible but consistent form, we will make a class that inherits Document from Mongoengine. 
+    Using this will also make sure all data is saved to the Cat page on the MongoDB server, so that this API only interfaces 
+    with that page. If we had other resources, we could also connect those with separate classes."""
+
+    class Cat(Document):
+        name = StringField(max_length=100, required=True)
+        age = IntField()
+        major = StringField(max_length=100)
+
+    """ Notes for about MongoEngine (This is an implementation specific to mongoengine
+    we need to define a page, Which is where we store items with mongoengine
+    All items with this class, Cat, will save on the same page in Mongo DB, "Cat"
+    It must inherent the mongoengine class Document
+    StringField and IntField are requirements by MongoEngine so we can store data effectively in the db
+
+    Adding new items: var = PageName(field1='', field2='', fieldx='') 
+    where PageName is the defined page as given. (in our case, its Cat) and each value in args matches type.
+    We simply create a Cat object by saying: new_cat = Cat(name='', age='', major=''), just like we'd create a class object 
+    normally. This adds a new entry to the 'Cat' Page on the database at the MongoDB URI we've previously established.
+    Saving the data:
+        var.save() 
+    """
+
+    """ We want to be able to do CRUD operations to the database. (Create, Read, Update, Delete). These are done with
+    our REST API. why?
+    We don't want to transfer the entire contents of the database to our code to add an entry, or to read entries.
+    That's hugely wasteful. Instead, we want to include only data that the database needs to use (for updating) 
+    or the user (for reading) needs. This is our "State" (the S in Rest). As the client, we are using only a 
+    "Representation" of the changes in the "State" and only "Transferring" that to the server.. (RE S T... see?)
+    """
