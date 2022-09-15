@@ -1,3 +1,5 @@
+import json
+
 import mongoengine
 from flask import Flask, request
 from flask_restful import Resource, Api
@@ -247,7 +249,8 @@ class DeleteCat(Resource):
             else:
                 ret_msg = {"Body": f"{find} not in table"}
                 ret_stat = 400  # send a bad request error.
-        # Fifth, disconnet
+        ret_msg = json.dumps(ret_msg)  # we need to convert this to JSON to pass through API
+        # Fifth, disconnect
 
         # Now, we have two things to return, the message and the code. Message goes first, then code.
         # Once we improve the update function, is there a way we can improve this functionality? It should be noted I

@@ -1,3 +1,5 @@
+import json
+
 import mongoengine
 from flask import Flask, request
 from flask_restful import Resource, Api
@@ -146,16 +148,18 @@ class FindCatByNick(Resource):
         find = req['name']
 
         connect(DB, host=MONGO_URI)
+        ret_status = 200
         try:
             ret = Cat.objects.get(name=find)  # This returns a QuerySet obj that we need to convert to JSON
             ret = ret.to_json()
         except mongoengine.DoesNotExist:
             ret = None
+            ret_status = 404
         except mongoengine.MultipleObjectsReturned:
             ret = Cat.objects(name=find)[0]  # return the first instance of the cat
             ret = ret.to_json()
         disconnect(alias=DB)
-        return ret, 200
+        return ret, ret_status
 
 
 # Update -- We are assuming client has full view of a resource and will pass in all available fields.
@@ -198,11 +202,13 @@ class DeleteCat(Resource):
         finally:
             if to_delete is not None:
                 Cat.objects(id=to_delete.id).delete()  # deleting by unique ID just in case dup names exist
-                ret_msg = {"Body": "Object Deleted"}
+                msg = f"A Cat with nick '{find}' has been deleted from database"
+                ret_msg = {"Body": msg}
                 ret_stat = 200
             else:
-                ret_msg = {"Body": f"{find} not in table"}
+                ret_msg = {"Body": f"{find} not in database"}
                 ret_stat = 400  # send a bad request error.
+        ret_msg = json.dumps(ret_msg)
         disconnect(alias=DB)
         return ret_msg, ret_stat
 

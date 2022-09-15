@@ -57,16 +57,16 @@ def test_database():
         print("\t 'modifycat <CatNick> <UpdatedNick> <UpdatedAge> <UpdatedMajor>' to test DB API's Update functionality and update the DB record")
         print("\t 'deletecat <CatNick>' to test DB API's Delete function and remove a cat from the DB")
         print("\t 'exit' to exit")
-        
+
         while usr_input != 'exit':
             usr_input = input()
             inp = usr_input.split(' ')
             if inp[0] == 'newcat':
                 test_addcat(inp[0], inp[1], inp[2], inp[3])  # path, name, age, major (all w/ no spaces)
-            elif inp[0] == 'findcat': 
+            elif inp[0] == 'findcat':
                 test_findcat(inp[0], inp[1])  # only need path and name to test find    
             elif inp[0] == 'modifycat':
-                test_updatecat(inp[0], inp[1], inp[2], inp[3], inp[4]) 
+                test_updatecat(inp[0], inp[1], inp[2], inp[3], inp[4])
             elif inp[0] == 'deletecat':
                 test_deletecat(inp[0], inp[1])
             else:
@@ -83,6 +83,7 @@ def test_addcat(path, name, age, major):
     resp = requests.post(url, json=req_body)
     if resp.status_code == 200:
         print(f"New record created: \n\tNick: \t{name}\n\tAge: \t{age}\n\tMajor: \t{major}")
+
     else:
         print("An error occurred. Try Again.")
     return
@@ -95,16 +96,38 @@ def test_findcat(path, name):
         resp = resp.json()  # get a string of the json representation of data
         resp = json.loads(resp)  # convert the JSON representation to a python dictionary for easy indexing
         print(f"Record Found: \n\tID:\t{resp['_id']['$oid']} \n\tNick: \t{resp['name']}\n\tAge: \t{resp['age']}\n\tMajor: \t{resp['major']}")
+    elif resp.status_code == 404:
+        print(f"Status Code Returned: {resp.status_code} \tA Cat by that nick not in database.")
     else:
-        print("An error occurred. Try Again.")
+        print(f"An error occurred. Try Again. Error code {resp.status_code}")
     return
 
 
 def test_updatecat(path, find_name, new_name, new_age, new_major):
-    pass
+    url = URL + path
+    req_body = {'name': find_name,
+                'newName': new_name,
+                'age': new_age,
+                'major': new_major}
+    resp = requests.post(url, json=req_body)
+    if resp.status_code == 200:
+        print(
+            f"Record updated. New Record: \n\tNick: \t{new_name}\n\tAge: \t{new_age}\n\tMajor: \t{new_major}")
+        # as written, updatecat only returns a status code. so values are taken from the Proposed changes used in the
+        # request
+    else:
+        print(f"An error occurred. Try Again. Error code {resp.status_code}")
+    return
+
 
 def test_deletecat(path, find_name):
-    pass
+    url = URL + path
+    req_body = {'name': find_name}
+    resp = requests.post(url, json=req_body)
+
+    ret_msg = json.loads(resp.json())
+    print(f"Status Code Returned: {resp.status_code} \t Return Message Body: {ret_msg['Body']}")
+    return
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
