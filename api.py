@@ -29,7 +29,7 @@ class CalculatorAdd(Resource):
         # In this case, we'll be creating an object of class Calculator. We've imported it at the top
 
         # Fourth, once we've connected to the resource, we must tell it what we want it to do
-
+        result = 0 # change this to a function call.
         # Fifth return result to client and return an HTTP status code.
         return result, 200 #200 is the OK code
 
@@ -45,7 +45,7 @@ class CalculatorSubtract(Resource):
         # In this case, we'll be creating an object of class Calculator. We've imported it at the top
 
         # Fourth, once we've connected to the resource, we must tell it what we want it to do
-
+        result = 0 # change this to a function call.
         # Fifth return result to client and return an HTTP status code.
         return result, 200
 
