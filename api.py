@@ -100,6 +100,41 @@ class CalculatorSubtract(Resource):
     our REST API. why?
     We don't want to transfer the entire contents of the database to our code to add an entry, or to read entries.
     That's hugely wasteful. Instead, we want to include only data that the database needs to use (for updating) 
-    or the user (for reading) needs. This is our "State" (the S in Rest). As the client, we are using only a 
-    "Representation" of the changes in the "State" and only "Transferring" that to the server.. (RE S T... see?)
+    or the user needs (for reading). This is our "State" (the S in REST). The state is usually a subset of database, 
+    and is treated as a "REpresentation" of database itself. We then make changes to the "State" and "Transfer" it back 
+    that to the server. (RE S T... see?)
+    Example: The Create Operation: The State starts empty, because the new entry doesn't exist in our 
+        Representation of the DB. Then, we modify the State to have a new record, Transfer that back to the original
+        Representation & the DB handles adding that record into its larger pieces.
     """
+
+    # Create
+    class AddCat(Resource):
+        def post(self):
+            # First Parse the body of the request so that the JSON is read-able by python
+
+            # Second, grab the variables from the body of the request. Here we should be given variables called 'name
+            # 'age' and 'major'. For now, we will assume the client will always pass valid values for all three, but
+            # an improvement would be doing validation that age is a number, none of these fields are null, etc
+
+
+            # Third, we must connect to our resource, the DB. We're utilizing globals established above for convenience.
+            # This is done for you here, but in the RUD ops I will leave it blank for you to add.
+            # (Hint: we always connect the same way)
+            connect(alias=DB, host=MONGO_URI)
+            # Fourth, Using Mongo Engine, we can create a Cat object. This can then be saved to the database we
+            # connected to above. This technically returns a database object, but we are not using it, so we won't
+            # save it. Once the connection is established, we can create the Cat Object and use the Cat.save()
+            # function saves the new object to the database we connected to with DB
+
+            # Fifth, we need to disconnect from the database once this call is done. I think its goo practice to always
+            # connect and disconnect in the API call so that you know you're handling your connections and once the
+            # API call is done there aren't hanging connections needing to be closed.
+            # Again, this is done for you here but will need to be implemented in later RUD ops (same hint applies)
+            disconnect(alias=DB)
+
+            # Here we would decide what to return. Since this is a toy case, we will always return 200. We don't want
+            # to return any data from the database.
+            # Improvements: If auth fails, should we return some other HTML code?
+            # What about if the record exists already or the user doesn't use the correct fields?
+            return 200
