@@ -230,6 +230,8 @@ class DeleteCat(Resource):
 
         # Fourth, we are trying to get the record we want to delete. This way we can access its ID, similar to Update.
         # then, we delete it if it exists. If it doesn't exist, we send back an error code and an error message.
+        # Because this is a specific implementation of mongoengine, I included the code. The *pattern* will be the same
+        # with any DB but the *syntax* will vary. our focus is on *patterns*
         to_delete = None
         try:
             to_delete = Cat.objects.get(name=find)
