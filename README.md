@@ -51,7 +51,7 @@ thing to see if the name of your virtual environment in parentheses before every
 Now, we will be using `pip` to install our dependencies from the repo. `pip` is the default package manager for Python.
 You can install dependencies using:
 
-```pip install requirements.txt```
+```pip install -r requirements.txt```
 
 I have included in our repo a list of dependencies needed for the project, this will install all of them automatically 
 to your virtual environment. This is a fresh environment, so we _shouldn't_ run into any issues.
