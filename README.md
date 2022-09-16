@@ -41,8 +41,17 @@ Our repo structure has three important files:
   is needed. Some specifics, like the way we reference our database, have been filled in so that we're focusing on the broad
   strokes of the API building process and not the library-specific implementations.
 - **requirements.txt**: This we will be using to install dependencies
+## Step 3: Making a New Branch
+If you want to use git to track your changes, it will be best to do so on your own branch. In order to do this, 
+navigate to the project directory using 
+``` cd cat_api_test``` (if you haven't already). Then, use the following command:
 
-## Step 3: Installing Dependencies
+```git checkout -b YourNick```
+
+`checkout` is the command that will switch a tracked branch in Git and the `-b` flag will create a new branch with the name that follows it. The name should be all one word. 
+Just switch our "YourNick" with, well, your cat nick (This can also be whatever unique name you want your branch 
+to be named, just know I will be able to see it).
+## Step 4: Installing Dependencies
 Now that we have our virtual environment created, our IDE has automatically activated it. You can double check this by
 opening a terminal in your IDE and verify that you have something like:
 ```(your environment name) shell_name_here $ ```. This will vary slightly based on terminal language but the important 
@@ -56,7 +65,7 @@ You can install dependencies using:
 I have included in our repo a list of dependencies needed for the project, this will install all of them automatically 
 to your virtual environment. This is a fresh environment, so we _shouldn't_ run into any issues.
 
-## Step 4: Testing Dependencies
+## Step 5: Testing Dependencies
 We're going to be working on `api.py`, it is a skeleton of the code and won't run successfully until we add code to it.
 There is a finalized version called `api_final.py` that has all the filled in code.
 This can be used for reference and is very useful for testing to make sure our requirements are successfully installed.
