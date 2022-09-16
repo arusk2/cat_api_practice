@@ -55,3 +55,22 @@ You can install dependencies using:
 
 I have included in our repo a list of dependencies needed for the project, this will install all of them automatically 
 to your virtual environment. This is a fresh environment, so we _shouldn't_ run into any issues.
+
+## Step 4: Testing Dependencies
+We're going to be working on `api.py`, it is a skeleton of the code and won't run successfully until we add code to it.
+There is a finalized version called `api_final.py` that has all the filled in code.
+This can be used for reference and is very useful for testing to make sure our requirements are successfully installed.
+
+To test that we have successfully installed all requirements, run the command:
+
+```flask --app api_final.py --debug run```
+
+This will create a Flask webserver using the `api_final.py` code. We can then run
+```python test.py``` to start a training script that we can manually test the API. If you are getting status codes of 200 as returns, you
+should be good to go!
+
+To run the `api.py` file, you can use the python script `flask_start.py` by using the command:
+
+```python flask_start.py ```
+
+**NOTE: This will not work until we add code to it. You will get 404 errors.**
