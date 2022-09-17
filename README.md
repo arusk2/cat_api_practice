@@ -83,3 +83,25 @@ To run the `api.py` file, you can use the python script `flask_start.py` by usin
 ```python flask_start.py ```
 
 **NOTE: This will not work until we add code to it. You will get 404 errors.**
+
+## Windows tips
+
+start the server in powershell with the password env var:
+
+```powershell
+$Env:DB_PASS = '' # put your password here, not in the source code. Sure it ends up in your terminal history, but that's a less public place.
+flask --app api.py --debug run
+```
+
+JSON requires the outer double quotes, and powershell eats them. To curl from powershell:
+curl.exe --data-binary '"{ \"first\": 2, \"second\": 2 }"' -v -H "Content-Type: application/json" localhost:5000/add
+curl.exe --data-binary '"{ \"name\": \"a\", \"age\": 1, \"major\": \"a\" }"' -v -H "Content-Type: application/json" localhost:5000/newcat
+
+## Linux tips
+
+start the server in bash with the password env var:
+
+```sh
+DB_PASS='' # put your password here, not in the source code. Sure it ends up in your terminal history, but that's a less public place
+flask --app api.py --debug run
+```
