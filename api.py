@@ -1,5 +1,6 @@
 import json
 
+import os
 import mongoengine
 from flask import Flask, request
 from flask_restful import Resource, Api
@@ -70,7 +71,7 @@ our API, we'll be using mongoengine to help give us a schema, much like a class 
 First we must establish some globals we'll be using.
 """
 USER = 'cat-db-user'
-PASS = ''  # This is bad practice don't do this in prod. This should be somewhere secret not saved to the repo
+PASS = os.getenv('DB_PASS')  # Read the DB_PASS variable's contents into the variable, so the password is only typed in the terminal, not in the public source code. If you also need to secure against "people who can read my terminal history", call a professional.
 DB = 'cat-test'
 # URI Provided by Mongo DB
 MONGO_URI = f"mongodb+srv://{USER}:{PASS}@cluster0.sqqpzjf.mongodb.net/?retryWrites=true&w=majority"
